@@ -4,16 +4,19 @@ import com.alibaba.fastjson.JSONObject;
 import com.hogwartsmini.demo.common.ResultDto;
 import com.hogwartsmini.demo.common.ServiceException;
 import com.hogwartsmini.demo.dao.AddHogwartsTestUserDto;
+import com.hogwartsmini.demo.dao.UpdateHogwartsTestUserDto;
 import com.hogwartsmini.demo.dto.UserDto;
 import com.hogwartsmini.demo.entity.HogwartsTestUser;
 import com.hogwartsmini.demo.service.HogwartsTestUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import tk.mybatis.mapper.util.StringUtil;
 
 @Api(tags = "霍格沃兹测试学院-测试任务管理")
 @RestController
@@ -52,9 +55,32 @@ public class HogwartsTestUserController {
         HogwartsTestUser hogwartsTestUser = new HogwartsTestUser();
         //使用spring的bean方法简化参数赋值
         BeanUtils.copyProperties(addHogwartsTestUserDto,hogwartsTestUser);
-        System.out.println(JSONObject.toJSONString(hogwartsTestUser));
-        return ResultDto.success("成功",hogwartsTestUser);
+        if(StringUtils.isEmpty(addHogwartsTestUserDto.getPassword())){
+            return ResultDto.fail("密码不能为空");
+        }
+        //System.out.println(JSONObject.toJSONString(hogwartsTestUser));
+        log.info("用户注册 请求入参" + JSONObject.toJSONString(hogwartsTestUser));
+
+        //hogwartsTestUserService.save(hogwartsTestUser);
+        return hogwartsTestUserService.save(hogwartsTestUser);
     }
+
+    @ApiOperation("用户信息修改接口")
+    @PostMapping("update")
+    public ResultDto<HogwartsTestUser>  update(@RequestBody UpdateHogwartsTestUserDto updateHogwartsTestUserDto){
+        HogwartsTestUser hogwartsTestUser = new HogwartsTestUser();
+        //使用spring的bean方法简化参数赋值
+        BeanUtils.copyProperties(updateHogwartsTestUserDto,hogwartsTestUser);
+        if(StringUtils.isEmpty(updateHogwartsTestUserDto.getPassword())){
+            return ResultDto.fail("密码不能为空");
+        }
+        //System.out.println(JSONObject.toJSONString(hogwartsTestUser));
+        log.info("用户修改 请求入参" + JSONObject.toJSONString(hogwartsTestUser));
+
+        //hogwartsTestUserService.save(hogwartsTestUser);
+        return hogwartsTestUserService.update(hogwartsTestUser);
+    }
+
 
     @RequestMapping(value = "byId/{userId}", method = RequestMethod.GET)
     public String getById(@PathVariable("userId") Long userId){
